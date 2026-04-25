@@ -10,8 +10,7 @@ const connectDB = async () => {
     } catch (error) {
         console.error('❌ MongoDB Connection Failed!');
         console.error(`🔍 Reason: ${error.message}`);
-        console.log('💡 Tip: Make sure your local MongoDB service is running.');
-        process.exit(1);
+        console.log('💡 Tip: Make sure your MONGO_URI environment variable is set correctly in Vercel.');
     }
 };
 
