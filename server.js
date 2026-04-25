@@ -60,6 +60,11 @@ app.use(limiter);
 // Enable CORS
 app.use(cors());
 
+// Root route
+app.get('/', (req, res) => {
+    res.send('<h1>Welcome Backend</h1>');
+});
+
 // Mount routers
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
