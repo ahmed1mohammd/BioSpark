@@ -60,6 +60,12 @@ app.use(limiter);
 // Enable CORS
 app.use(cors());
 
+// Ensure DB is connected on every request (crucial for serverless)
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
+
 // Root route
 app.get('/', (req, res) => {
     res.send('<h1>Welcome Backend</h1>');
