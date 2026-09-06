@@ -14,9 +14,6 @@ import errorHandler from './middlewares/errorMiddleware.js';
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 // Route files
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
@@ -74,10 +71,14 @@ app.use(limiter);
 // Enable CORS
 app.use(cors());
 
-// Ensure public/uploads directory exists
-const uploadsDir = path.resolve('public/uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure public/uploads directory exists safely
+const uploadsDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.resolve('public/uploads');
+try {
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+} catch (err) {
+    console.warn('Uploads directory warning:', err.message);
 }
 
 // Static folder for uploads
