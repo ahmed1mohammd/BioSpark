@@ -1,43 +1,55 @@
 import Product from '../models/Product.js';
 import Workshop from '../models/Workshop.js';
-import Event from '../models/Event.js';
-import Article from '../models/Article.js';
-import Customer from '../models/Customer.js';
-import Review from '../models/Review.js';
-import Visitor from '../models/Visitor.js';
-import Message from '../models/Message.js';
+import Camp from '../models/Camp.js';
+import Program from '../models/Program.js';
+import Gallery from '../models/Gallery.js';
+import Testimonial from '../models/Testimonial.js';
+import SchoolInquiry from '../models/SchoolInquiry.js';
+import ContactSubmission from '../models/ContactSubmission.js';
 
 // @desc    Get dashboard stats
 // @route   GET /api/dashboard/stats
 // @access  Private
 export const getStats = async (req, res, next) => {
     try {
-        const products = await Product.countDocuments();
-        const workshops = await Workshop.countDocuments();
-        const events = await Event.countDocuments();
-        const articles = await Article.countDocuments();
-        const customers = await Customer.countDocuments();
-        const reviews = await Review.countDocuments();
-        const visitors = await Visitor.countDocuments();
-        const messages = await Message.countDocuments();
-        
-        // Simulating actual page views for 'visits' or using visitors count as a proxy
-        const visits = visitors + Math.floor(Math.random() * 100); 
+        const [
+            products,
+            workshops,
+            camps,
+            programs,
+            gallery,
+            testimonials,
+            schoolInquiries,
+            contactSubmissions
+        ] = await Promise.all([
+            Product.countDocuments(),
+            Workshop.countDocuments(),
+            Camp.countDocuments(),
+            Program.countDocuments(),
+            Gallery.countDocuments(),
+            Testimonial.countDocuments(),
+            SchoolInquiry.countDocuments(),
+            ContactSubmission.countDocuments()
+        ]);
+
+        const newInquiries = await SchoolInquiry.countDocuments({ status: 'New' }) + 
+                             await ContactSubmission.countDocuments({ status: 'New' });
 
         res.status(200).json({
             success: true,
             data: {
-                visits,
-                products,
+                totalInquiries: schoolInquiries + contactSubmissions,
+                newInquiries,
+                schoolInquiries,
+                contactSubmissions,
                 workshops,
-                events,
-                articles,
-                customers,
-                reviews,
-                visitors,
-                messages
+                camps,
+                products,
+                programs,
+                gallery,
+                testimonials
             },
-            message: 'Stats retrieved successfully'
+            message: 'Dashboard statistics retrieved successfully'
         });
     } catch (err) {
         next(err);

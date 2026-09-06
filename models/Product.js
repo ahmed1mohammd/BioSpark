@@ -1,35 +1,67 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: [true, 'Please add a title'],
-        trim: true,
-        maxlength: [100, 'Title cannot be more than 100 characters']
-    },
-    category: {
-        type: String,
-        required: [true, 'Please add a category'],
-        trim: true
-    },
-    description: {
-        type: String,
-        required: [true, 'Please add a description'],
-        maxlength: [1000, 'Description cannot be more than 1000 characters']
-    },
-    imageUrl: {
-        type: String,
-        required: [true, 'Please add an image URL'],
-        default: 'no-photo.jpg'
-    },
-    date: {
-        type: Date,
-        default: Date.now
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+  title: {
+    type: String,
+    required: [true, 'Please add a product title'],
+    trim: true
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  category: {
+    type: String,
+    trim: true,
+    default: 'Educational Kits'
+  },
+  shortDescription: {
+    type: String,
+    default: ''
+  },
+  description: {
+    type: String,
+    required: [true, 'Please add a description']
+  },
+  imageUrl: {
+    type: String,
+    default: '/main.png'
+  },
+  price: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  salePrice: {
+    type: Number,
+    default: 0
+  },
+  stockStatus: {
+    type: String,
+    enum: ['In Stock', 'Out of Stock', 'Pre-Order'],
+    default: 'In Stock'
+  },
+  sku: {
+    type: String,
+    default: ''
+  },
+  specifications: [{
+    key: { type: String },
+    value: { type: String }
+  }],
+  active: {
+    type: Boolean,
+    default: true
+  },
+  featured: {
+    type: Boolean,
+    default: true
+  },
+  ordering: {
+    type: Number,
+    default: 0
+  }
+}, { timestamps: true });
 
 export default mongoose.model('Product', productSchema);

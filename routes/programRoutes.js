@@ -1,17 +1,17 @@
 import express from 'express';
-import Workshop from '../models/Workshop.js';
+import Program from '../models/Program.js';
 import { getAll, getOne, createOne, updateOne, deleteOne } from '../controllers/factoryController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
-  .get(getAll(Workshop))
-  .post(protect, createOne(Workshop));
+  .get(getAll(Program))
+  .post(protect, createOne(Program));
 
 router.route('/:id')
-  .get(getOne(Workshop))
-  .put(protect, updateOne(Workshop))
-  .delete(protect, deleteOne(Workshop));
+  .get(getOne(Program))
+  .put(protect, updateOne(Program))
+  .delete(protect, deleteOne(Program));
 
 export default router;

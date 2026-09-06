@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const workshopSchema = new mongoose.Schema({
+const campSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'Please add a workshop title'],
+    required: [true, 'Please add a camp title'],
     trim: true
   },
   slug: {
@@ -14,31 +14,28 @@ const workshopSchema = new mongoose.Schema({
   category: {
     type: String,
     trim: true,
-    default: 'Biotechnology'
+    default: 'Young Scientists'
   },
-  shortDescription: {
+  description: {
     type: String,
     required: true
   },
-  fullDescription: {
+  ageRange: {
     type: String,
-    default: ''
-  },
-  ageGroup: {
-    type: String,
-    default: 'Grades 6 - 12 (Ages 11-18)'
+    default: 'Ages 8-16'
   },
   duration: {
     type: String,
-    default: '2 - 3 Hours'
+    default: '5 Days (Summer Camp)'
   },
-  capacity: {
+  dates: {
     type: String,
-    default: '20 - 30 Students'
+    default: 'July - August 2026'
   },
-  learningObjectives: [{
-    type: String
-  }],
+  location: {
+    type: String,
+    default: 'BioSpark Lab Center / Partner Schools'
+  },
   activities: [{
     type: String
   }],
@@ -46,9 +43,13 @@ const workshopSchema = new mongoose.Schema({
     type: String,
     default: '/main.png'
   },
-  registrationLink: {
+  price: {
+    type: Number,
+    default: 0
+  },
+  capacity: {
     type: String,
-    default: ''
+    default: '15-20 Students per session'
   },
   active: {
     type: Boolean,
@@ -64,4 +65,4 @@ const workshopSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-export default mongoose.model('Workshop', workshopSchema);
+export default mongoose.model('Camp', campSchema);

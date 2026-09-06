@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
@@ -19,14 +20,23 @@ connectDB();
 // Route files
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
-import productRoutes from './routes/productRoutes.js';
+import contentRoutes from './routes/contentRoutes.js';
+import programRoutes from './routes/programRoutes.js';
 import workshopRoutes from './routes/workshopRoutes.js';
+import campRoutes from './routes/campRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import galleryRoutes from './routes/galleryRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
+import inquiryRoutes from './routes/inquiryRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import visitorRoutes from './routes/visitorRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import boardMemberRoutes from './routes/boardMemberRoutes.js';
+import carouselRoutes from './routes/carouselRoutes.js';
 
 const app = express();
 
@@ -34,7 +44,8 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -45,7 +56,10 @@ if (process.env.NODE_ENV === 'development') {
 app.use(mongoSanitize());
 
 // Set security headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false,
+}));
 
 // Prevent XSS attacks
 app.use(xss());
@@ -53,12 +67,30 @@ app.use(xss());
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 mins
-    max: 100
+    max: 500 // Increased limit for interactive dashboard & public site
 });
 app.use(limiter);
 
 // Enable CORS
 app.use(cors());
+
+// Ensure public/uploads directory exists
+const uploadsDir = path.resolve('public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Static folder for uploads
+app.use('/uploads', express.static(uploadsDir));
+
+// Serve Admin Dashboard
+const dashboardDir = path.resolve('../Dashboard');
+if (fs.existsSync(dashboardDir)) {
+    app.use('/dashboard', express.static(dashboardDir));
+    app.get('/dashboard/*', (req, res) => {
+        res.sendFile(path.join(dashboardDir, 'index.html'));
+    });
+}
 
 // Ensure DB is connected on every request (crucial for serverless)
 app.use(async (req, res, next) => {
@@ -68,23 +100,31 @@ app.use(async (req, res, next) => {
 
 // Root route
 app.get('/', (req, res) => {
-    res.send('<h1>Welcome Backend</h1>');
+    res.send('<h1>BioSpark API Server Online</h1>');
 });
 
 // Mount routers
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/programs', programRoutes);
 app.use('/api/workshops', workshopRoutes);
+app.use('/api/camps', campRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/upload', uploadRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/visitors', visitorRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/board-members', boardMemberRoutes);
+app.use('/api/carousels', carouselRoutes);
 
 // Error handler
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
@@ -92,19 +132,15 @@ const PORT = process.env.PORT || 5000;
 // Export app for Vercel
 export default app;
 
-// Only listen if not in production/Vercel (it handles the listen internally)
+// Only listen if not in production/Vercel
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     const server = app.listen(
         PORT,
-        console.log(
-            `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-        )
+        console.log(`✅ BioSpark Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
     );
 
-    // Handle unhandled promise rejections
     process.on('unhandledRejection', (err, promise) => {
         console.log(`Error: ${err.message}`);
-        // Close server & exit process
         server.close(() => process.exit(1));
     });
 }
